@@ -1,0 +1,80 @@
+# ─── OS ──────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── IDE / Editors ───────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+*~
+
+# ─── Env / Secrets ───────────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ─── Logs ────────────────────────────────────────────────────────────────────
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Backend (Python / Django)
+# ═════════════════════════════════════════════════════════════════════════════
+
+# Byte-compiled / optimized / DLL files
+backend/**/__pycache__/
+backend/**/*.py[cod]
+backend/**/*$py.class
+backend/**/*.so
+
+# Virtual environments
+backend/venv/
+backend/env/
+backend/.venv/
+
+# Django
+backend/db.sqlite3
+backend/db.sqlite3-journal
+backend/media/
+backend/staticfiles/
+backend/static_collected/
+backend/local_settings.py
+backend/celerybeat-schedule
+backend/celerybeat.pid
+
+# Migrations: keep the files (they belong in VCS), but nothing to ignore here.
+# Pytest / coverage
+backend/.pytest_cache/
+backend/.coverage
+backend/htmlcov/
+backend/.tox/
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Frontend (Angular / Node)
+# ═════════════════════════════════════════════════════════════════════════════
+
+frontend/node_modules/
+frontend/dist/
+frontend/tmp/
+frontend/out-tsc/
+frontend/bazel-out/
+
+# Angular cache
+frontend/.angular/
+.angular/
+
+# Build / test output
+frontend/coverage/
+frontend/.nyc_output/
+
+# Package manager debug
+frontend/.pnp.*
+frontend/.yarn/

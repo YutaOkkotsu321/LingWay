@@ -1,0 +1,94 @@
+/* ─── GLOBAL STYLES ─────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg-primary:   #13141f;
+  --bg-secondary: #1a1b2e;
+  --bg-card:      #1e2038;
+  --bg-card-hover:#252645;
+  --bg-input:     #252540;
+  --border:       rgba(255, 255, 255, 0.07);
+  --border-hover: rgba(160, 100, 255, 0.35);
+
+  --accent-purple: #7c3aed;
+  --accent-violet: #a855f7;
+  --accent-indigo: #818cf8;
+  --accent-green:  #10b981;
+  --accent-teal:   #14b8a6;
+
+  --text-primary:   #f1f0ff;
+  --text-secondary: #9ca3af;
+  --text-muted:     #6b7280;
+
+  --grad-title: linear-gradient(135deg, #a855f7 0%, #818cf8 100%);
+  --grad-btn:   linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  --grad-green: linear-gradient(135deg, #10b981 0%, #059669 100%);
+
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 24px rgba(124, 58, 237, 0.25);
+  --radius:      12px;
+  --radius-lg:   16px;
+  --radius-pill: 999px;
+
+  --font-main:  'Sora', sans-serif;
+  --font-mono:  'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+
+button {
+  font-family: var(--font-main);
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+input, textarea {
+  font-family: var(--font-main);
+  outline: none;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--accent-purple); border-radius: 3px; }
+
+/* Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.45s ease both;
+}
+
+/* Utility */
+.error-msg {
+  color: #f87171;
+  font-size: 0.82rem;
+  margin-top: 6px;
+}
+
+.success-msg {
+  color: var(--accent-green);
+  font-size: 0.82rem;
+  margin-top: 6px;
+}

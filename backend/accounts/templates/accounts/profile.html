@@ -1,0 +1,194 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}My Profile · English Learning{% endblock %}
+
+{% block extra_head %}
+<style>
+  .page { max-width: 1100px; margin: 0 auto; padding: 48px 60px 80px; }
+  .page-header { margin-bottom: 36px; }
+  .page-title { font-size: 2.2rem; font-weight: 800; }
+  .page-sub { color: var(--text-secondary); font-size: 0.95rem; margin-top: 6px; }
+
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--text-secondary); font-size: 0.85rem;
+    margin-bottom: 24px;
+  }
+  .back-link:hover { color: var(--accent-violet); }
+
+  .layout {
+    display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: start;
+  }
+  @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
+
+  .profile-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    position: sticky; top: 24px;
+  }
+  .avatar-section {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 36px 24px 28px;
+    background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(129,140,248,0.08));
+    border-bottom: 1px solid var(--border);
+  }
+  .avatar {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: var(--grad-btn);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; font-weight: 800; color: #fff;
+    margin-bottom: 14px;
+    box-shadow: 0 0 0 4px rgba(124,58,237,0.2);
+  }
+  .avatar-section h3 { font-size: 1.1rem; font-weight: 700; text-align: center; }
+  .user-email { color: var(--text-muted); font-size: 0.82rem; margin-top: 4px; text-align: center; }
+  .member-badge {
+    margin-top: 10px;
+    background: rgba(16,185,129,0.15); color: var(--accent-green);
+    font-size: 0.72rem; font-weight: 600; padding: 3px 12px;
+    border-radius: var(--radius-pill); letter-spacing: 0.04em;
+  }
+
+  .edit-section { display: flex; flex-direction: column; gap: 20px; }
+  .edit-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+  }
+  .edit-title { font-size: 1rem; font-weight: 700; margin-bottom: 20px; }
+
+  .danger-card {
+    background: rgba(248,113,113,0.05);
+    border: 1px solid rgba(248,113,113,0.2);
+    border-radius: var(--radius-lg); padding: 24px;
+  }
+  .danger-title { font-size: 1rem; font-weight: 700; color: #f87171; margin-bottom: 8px; }
+  .danger-desc { color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 16px; line-height: 1.5; }
+
+  .inline-actions { display: flex; gap: 12px; }
+  .inline-actions .btn-outline { width: auto; padding: 10px 18px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page">
+  <a href="http://localhost:4200/grammar" class="back-link">← Back to learning</a>
+
+  <div class="page-header">
+    <h2 class="page-title">My Profile</h2>
+    <p class="page-sub">Manage your account and update your info</p>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="{% if message.tags == 'success' %}success-banner{% else %}api-error{% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="layout">
+    <div class="profile-card">
+      <div class="avatar-section">
+        <div class="avatar">{{ user.username|slice:":2"|upper }}</div>
+        <h3>{{ user.display_name|default:user.username }}</h3>
+        <p class="user-email">{{ user.email }}</p>
+        <span class="member-badge">Active Learner</span>
+      </div>
+    </div>
+
+    <div class="edit-section">
+      <div class="edit-card">
+        <h3 class="edit-title">Edit Profile</h3>
+
+        {% if profile_form.non_field_errors %}
+          <div class="form-errors">{{ profile_form.non_field_errors|join:" " }}</div>
+        {% endif %}
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="action" value="update_profile" />
+
+          <div class="field">
+            <label for="{{ profile_form.display_name.id_for_label }}">Display Name</label>
+            {{ profile_form.display_name }}
+            {% if profile_form.display_name.errors %}<ul class="errorlist">{% for e in profile_form.display_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+          </div>
+
+          <div class="field">
+            <label for="{{ profile_form.email.id_for_label }}">Email</label>
+            {{ profile_form.email }}
+            {% if profile_form.email.errors %}<ul class="errorlist">{% for e in profile_form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+          </div>
+
+          <div class="field">
+            <label for="{{ profile_form.bio.id_for_label }}">Bio</label>
+            {{ profile_form.bio }}
+            {% if profile_form.bio.errors %}<ul class="errorlist">{% for e in profile_form.bio.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+          </div>
+
+          <button type="submit" class="btn-primary">Save Changes</button>
+        </form>
+      </div>
+
+      <div class="edit-card">
+        <h3 class="edit-title">Change Password</h3>
+
+        {% if password_form.non_field_errors %}
+          <div class="form-errors">{{ password_form.non_field_errors|join:" " }}</div>
+        {% endif %}
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="action" value="change_password" />
+
+          <div class="field">
+            <label for="{{ password_form.old_password.id_for_label }}">Current Password</label>
+            {{ password_form.old_password }}
+            {% if password_form.old_password.errors %}<ul class="errorlist">{% for e in password_form.old_password.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+          </div>
+
+          <div class="field">
+            <label for="{{ password_form.new_password1.id_for_label }}">New Password</label>
+            {{ password_form.new_password1 }}
+            {% if password_form.new_password1.help_text %}<small class="helptext">{{ password_form.new_password1.help_text|safe }}</small>{% endif %}
+            {% if password_form.new_password1.errors %}<ul class="errorlist">{% for e in password_form.new_password1.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+          </div>
+
+          <div class="field">
+            <label for="{{ password_form.new_password2.id_for_label }}">Confirm New Password</label>
+            {{ password_form.new_password2 }}
+            {% if password_form.new_password2.errors %}<ul class="errorlist">{% for e in password_form.new_password2.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+          </div>
+
+          <button type="submit" class="btn-outline">Update Password</button>
+        </form>
+      </div>
+
+      <div class="edit-card">
+        <h3 class="edit-title">Session</h3>
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn-outline">Logout</button>
+        </form>
+      </div>
+
+      <div class="danger-card">
+        <h3 class="danger-title">Danger Zone</h3>
+        <p class="danger-desc">Permanently delete your account. Type your username <strong>{{ user.username }}</strong> to confirm.</p>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="delete_account" />
+          <div class="field">
+            <input type="text" name="confirm_username" placeholder="{{ user.username }}" required />
+          </div>
+          <button type="submit" class="btn-danger">Delete Account</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

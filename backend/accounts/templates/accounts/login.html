@@ -1,0 +1,62 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}Sign In · English Learning{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card fade-in-up">
+    <div class="auth-brand">
+      <h1>English Learning</h1>
+      <p>Comprehensive language education platform</p>
+    </div>
+
+    <div class="auth-body">
+      <h2>Welcome back</h2>
+      <p class="auth-subtitle">Sign in to continue your learning journey</p>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="{% if message.tags == 'success' %}success-banner{% else %}api-error{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      {% if form.non_field_errors %}
+        <div class="form-errors">{{ form.non_field_errors|join:" " }}</div>
+      {% endif %}
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="field">
+          <label for="{{ form.username.id_for_label }}">Username</label>
+          {{ form.username }}
+          {% if form.username.errors %}<ul class="errorlist">{% for e in form.username.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+
+        <div class="field">
+          <label for="{{ form.password.id_for_label }}">Password</label>
+          {{ form.password }}
+          {% if form.password.errors %}<ul class="errorlist">{% for e in form.password.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+
+        {% if request.GET.next %}<input type="hidden" name="next" value="{{ request.GET.next }}" />{% endif %}
+
+        <button type="submit" class="btn-primary">Sign In</button>
+      </form>
+
+      <p class="switch-auth">
+        Don't have an account?
+        <a href="{% url 'register' %}">Create one</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="auth-deco">
+    <div class="deco-circle c1"></div>
+    <div class="deco-circle c2"></div>
+    <div class="deco-circle c3"></div>
+  </div>
+</div>
+{% endblock %}

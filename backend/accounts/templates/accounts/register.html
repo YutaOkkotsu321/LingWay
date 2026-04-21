@@ -1,0 +1,65 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}Create Account · English Learning{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card fade-in-up">
+    <div class="auth-brand">
+      <h1>English Learning</h1>
+      <p>Start your language journey today</p>
+    </div>
+
+    <div class="auth-body">
+      <h2>Create account</h2>
+      <p class="auth-subtitle">Join thousands of learners worldwide</p>
+
+      {% if form.non_field_errors %}
+        <div class="form-errors">{{ form.non_field_errors|join:" " }}</div>
+      {% endif %}
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="field">
+          <label for="{{ form.username.id_for_label }}">Username</label>
+          {{ form.username }}
+          {% if form.username.help_text %}<small class="helptext">{{ form.username.help_text|safe }}</small>{% endif %}
+          {% if form.username.errors %}<ul class="errorlist">{% for e in form.username.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+
+        <div class="field">
+          <label for="{{ form.email.id_for_label }}">Email address</label>
+          {{ form.email }}
+          {% if form.email.errors %}<ul class="errorlist">{% for e in form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+
+        <div class="field">
+          <label for="{{ form.password1.id_for_label }}">Password</label>
+          {{ form.password1 }}
+          {% if form.password1.help_text %}<small class="helptext">{{ form.password1.help_text|safe }}</small>{% endif %}
+          {% if form.password1.errors %}<ul class="errorlist">{% for e in form.password1.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+
+        <div class="field">
+          <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+          {{ form.password2 }}
+          {% if form.password2.errors %}<ul class="errorlist">{% for e in form.password2.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+
+        <button type="submit" class="btn-primary">Create Account</button>
+      </form>
+
+      <p class="switch-auth">
+        Already have an account?
+        <a href="{% url 'login' %}">Sign in</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="auth-deco">
+    <div class="deco-circle c1"></div>
+    <div class="deco-circle c2"></div>
+  </div>
+</div>
+{% endblock %}
