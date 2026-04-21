@@ -1,0 +1,486 @@
+{
+  "info": {
+    "name": "English Learning App API",
+    "_postman_id": "english-learning-app-kbtu-2026",
+    "description": "Complete API collection for the English Learning App — Angular + Django project. Base URL: http://localhost:8000/api\n\nAuth: all endpoints except /auth/login/ and /auth/register/ require the Bearer token in the Authorization header. After login, copy the 'access' token and set it as {{token}} in the collection variable.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string",
+      "description": "Paste the access token here after login"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string",
+      "description": "Paste the refresh token here after login"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/register/", "host": ["{{base_url}}"], "path": ["auth", "register", ""] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"john_doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"securepass123\",\n  \"confirmPassword\": \"securepass123\"\n}"
+            }
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"id\": 2,\n  \"username\": \"john_doe\",\n  \"email\": \"john@example.com\",\n  \"displayName\": \"john_doe\",\n  \"bio\": \"\",\n  \"avatar\": \"\",\n  \"joinedAt\": \"2026-04-22T10:00:00.000000Z\"\n}"
+            },
+            {
+              "name": "400 Bad Request — username taken",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"username\": [\"This username is already taken.\"]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('token', json.access);",
+                  "  pm.collectionVariables.set('refresh_token', json.refresh);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/login/", "host": ["{{base_url}}"], "path": ["auth", "login", ""] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"demo\",\n  \"password\": \"demo1234\"\n}"
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"refresh\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"access\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}"
+            },
+            {
+              "name": "401 Unauthorized",
+              "status": "Unauthorized",
+              "code": 401,
+              "body": "{\n  \"detail\": \"Invalid credentials.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/auth/logout/", "host": ["{{base_url}}"], "path": ["auth", "logout", ""] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"detail\": \"Successfully logged out.\"\n}"
+            },
+            {
+              "name": "400 Bad Request — already used",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"detail\": \"Token is invalid or already expired.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/auth/me/", "host": ["{{base_url}}"], "path": ["auth", "me", ""] }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"id\": 1,\n  \"username\": \"demo\",\n  \"email\": \"demo@example.com\",\n  \"displayName\": \"Demo User\",\n  \"bio\": \"English learner\",\n  \"avatar\": \"\",\n  \"joinedAt\": \"2026-04-22T10:00:00.000000Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/auth/me/", "host": ["{{base_url}}"], "path": ["auth", "me", ""] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"displayName\": \"John Doe\",\n  \"bio\": \"Passionate English learner from Kazakhstan\"\n}"
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"id\": 1,\n  \"username\": \"demo\",\n  \"email\": \"demo@example.com\",\n  \"displayName\": \"John Doe\",\n  \"bio\": \"Passionate English learner from Kazakhstan\",\n  \"avatar\": \"\",\n  \"joinedAt\": \"2026-04-22T10:00:00.000000Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/token/refresh/", "host": ["{{base_url}}"], "path": ["auth", "token", "refresh", ""] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"access\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/auth/change-password/", "host": ["{{base_url}}"], "path": ["auth", "change-password", ""] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"old_password\": \"demo1234\",\n  \"new_password\": \"newpassword123\"\n}"
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"detail\": \"Password changed successfully.\"\n}"
+            },
+            {
+              "name": "400 Bad Request — wrong current password",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"detail\": \"Current password is incorrect.\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Grammar",
+      "item": [
+        {
+          "name": "List All Grammar Topics",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/grammar/",
+              "host": ["{{base_url}}"],
+              "path": ["grammar", ""],
+              "query": [
+                { "key": "level", "value": "intermediate", "disabled": true },
+                { "key": "category", "value": "Tenses", "disabled": true }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 1,\n    \"title\": \"Present Perfect\",\n    \"slug\": \"present-perfect\",\n    \"description\": \"Used for actions that started in the past and continue to the present\",\n    \"level\": \"intermediate\",\n    \"category\": \"Tenses\",\n    \"examples\": [\"I have worked here since 2020.\", \"They have already left.\"],\n    \"rules\": [\n      {\n        \"id\": 1,\n        \"title\": \"Affirmative\",\n        \"explanation\": \"Subject + have/has + past participle\",\n        \"formula\": \"S + have/has + V3\",\n        \"examples\": [\"I have lived here for 5 years.\", \"She has finished her homework.\"]\n      }\n    ],\n    \"exercises\": [\n      {\n        \"id\": 1,\n        \"question\": \"Complete: \\\"She ___ (live) here for 10 years.\\\"\",\n        \"options\": [\"has lived\", \"lived\", \"is living\", \"have lived\"],\n        \"correctAnswer\": \"has lived\",\n        \"explanation\": \"Use 'has' for third person singular + past participle.\"\n      }\n    ]\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Get Grammar Topic by ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/grammar/1/", "host": ["{{base_url}}"], "path": ["grammar", "1", ""] }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"id\": 1,\n  \"title\": \"Present Perfect\",\n  \"slug\": \"present-perfect\",\n  \"description\": \"Used for actions that started in the past and continue to the present\",\n  \"level\": \"intermediate\",\n  \"category\": \"Tenses\",\n  \"examples\": [\"I have worked here since 2020.\"],\n  \"rules\": [\n    {\n      \"id\": 1,\n      \"title\": \"Affirmative\",\n      \"explanation\": \"Subject + have/has + past participle\",\n      \"formula\": \"S + have/has + V3\",\n      \"examples\": [\"I have lived here for 5 years.\"]\n    },\n    {\n      \"id\": 2,\n      \"title\": \"Negative\",\n      \"explanation\": \"Subject + have/has + not + past participle\",\n      \"formula\": \"S + haven't/hasn't + V3\",\n      \"examples\": [\"I haven't seen that movie.\"]\n    }\n  ],\n  \"exercises\": [\n    {\n      \"id\": 1,\n      \"question\": \"Complete: \\\"She ___ (live) here for 10 years.\\\"\",\n      \"options\": [\"has lived\", \"lived\", \"is living\", \"have lived\"],\n      \"correctAnswer\": \"has lived\",\n      \"explanation\": \"Use 'has' for third person singular.\"\n    }\n  ]\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "body": "{\n  \"detail\": \"Not found.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Grammar Topic (CRUD)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/grammar/1/", "host": ["{{base_url}}"], "path": ["grammar", "1", ""] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Updated description for Present Perfect tense\"\n}"
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"id\": 1,\n  \"title\": \"Present Perfect\",\n  \"slug\": \"present-perfect\",\n  \"description\": \"Updated description for Present Perfect tense\",\n  \"level\": \"intermediate\",\n  \"category\": \"Tenses\",\n  \"examples\": [],\n  \"rules\": [],\n  \"exercises\": []\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Grammar Topic (CRUD)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/grammar/6/", "host": ["{{base_url}}"], "path": ["grammar", "6", ""] }
+          },
+          "response": [
+            {
+              "name": "204 No Content",
+              "status": "No Content",
+              "code": 204,
+              "body": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Vocabulary",
+      "item": [
+        {
+          "name": "List Vocabulary (by category)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/vocabulary/?category=business",
+              "host": ["{{base_url}}"],
+              "path": ["vocabulary", ""],
+              "query": [{ "key": "category", "value": "business" }]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 1,\n    \"word\": \"Leverage\",\n    \"partOfSpeech\": \"verb\",\n    \"definition\": \"To use something to maximum advantage\",\n    \"example\": \"\\\"We can leverage our expertise to win new clients.\\\"\",\n    \"synonyms\": [\"utilize\", \"exploit\", \"employ\"],\n    \"category\": \"business\",\n    \"isFavorited\": false,\n    \"audioUrl\": \"\"\n  },\n  {\n    \"id\": 2,\n    \"word\": \"Synergy\",\n    \"partOfSpeech\": \"noun\",\n    \"definition\": \"The combined power of a group working together\",\n    \"example\": \"\\\"The merger created great synergy between the two companies.\\\"\",\n    \"synonyms\": [\"collaboration\", \"cooperation\", \"teamwork\"],\n    \"category\": \"business\",\n    \"isFavorited\": false,\n    \"audioUrl\": \"\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Search Vocabulary",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/vocabulary/?search=leverage&category=business",
+              "host": ["{{base_url}}"],
+              "path": ["vocabulary", ""],
+              "query": [
+                { "key": "search", "value": "leverage" },
+                { "key": "category", "value": "business" }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 1,\n    \"word\": \"Leverage\",\n    \"partOfSpeech\": \"verb\",\n    \"definition\": \"To use something to maximum advantage\",\n    \"example\": \"\\\"We can leverage our expertise to win new clients.\\\"\",\n    \"synonyms\": [\"utilize\", \"exploit\", \"employ\"],\n    \"category\": \"business\",\n    \"isFavorited\": false,\n    \"audioUrl\": \"\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Toggle Favorite Word",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/vocabulary/1/favorite/", "host": ["{{base_url}}"], "path": ["vocabulary", "1", "favorite", ""] }
+          },
+          "response": [
+            {
+              "name": "200 OK — favorited",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"id\": 1,\n  \"word\": \"Leverage\",\n  \"partOfSpeech\": \"verb\",\n  \"definition\": \"To use something to maximum advantage\",\n  \"example\": \"\\\"We can leverage our expertise to win new clients.\\\"\",\n  \"synonyms\": [\"utilize\", \"exploit\", \"employ\"],\n  \"category\": \"business\",\n  \"isFavorited\": true,\n  \"audioUrl\": \"\"\n}"
+            },
+            {
+              "name": "200 OK — unfavorited (toggle)",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"id\": 1,\n  \"word\": \"Leverage\",\n  \"partOfSpeech\": \"verb\",\n  \"definition\": \"To use something to maximum advantage\",\n  \"example\": \"\\\"We can leverage our expertise to win new clients.\\\"\",\n  \"synonyms\": [\"utilize\", \"exploit\", \"employ\"],\n  \"category\": \"business\",\n  \"isFavorited\": false,\n  \"audioUrl\": \"\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Favorite Words",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/vocabulary/favorites/", "host": ["{{base_url}}"], "path": ["vocabulary", "favorites", ""] }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 1,\n    \"word\": \"Leverage\",\n    \"partOfSpeech\": \"verb\",\n    \"definition\": \"To use something to maximum advantage\",\n    \"example\": \"\\\"We can leverage our expertise to win new clients.\\\"\",\n    \"synonyms\": [\"utilize\", \"exploit\", \"employ\"],\n    \"category\": \"business\",\n    \"isFavorited\": true,\n    \"audioUrl\": \"\"\n  }\n]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Flashcards",
+      "item": [
+        {
+          "name": "List All Flashcards",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/flashcards/", "host": ["{{base_url}}"], "path": ["flashcards", ""] }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 1,\n    \"question\": \"What is the past tense of 'go'?\",\n    \"answer\": \"went\",\n    \"category\": \"Irregular Verbs\",\n    \"difficulty\": \"easy\",\n    \"isMastered\": false,\n    \"timesReviewed\": 0\n  },\n  {\n    \"id\": 2,\n    \"question\": \"What is the past tense of 'bring'?\",\n    \"answer\": \"brought\",\n    \"category\": \"Irregular Verbs\",\n    \"difficulty\": \"easy\",\n    \"isMastered\": false,\n    \"timesReviewed\": 0\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "List Flashcards (Shuffled)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/flashcards/?shuffle=true",
+              "host": ["{{base_url}}"],
+              "path": ["flashcards", ""],
+              "query": [{ "key": "shuffle", "value": "true" }]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK — random order",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 7,\n    \"question\": \"Complete: \\\"The report ___ (submit) yesterday.\\\" (Passive)\",\n    \"answer\": \"was submitted\",\n    \"category\": \"Passive Voice\",\n    \"difficulty\": \"medium\",\n    \"isMastered\": false,\n    \"timesReviewed\": 0\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Mark Flashcard as Mastered",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/flashcards/1/master/", "host": ["{{base_url}}"], "path": ["flashcards", "1", "master", ""] }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"id\": 1,\n  \"question\": \"What is the past tense of 'go'?\",\n  \"answer\": \"went\",\n  \"category\": \"Irregular Verbs\",\n  \"difficulty\": \"easy\",\n  \"isMastered\": true,\n  \"timesReviewed\": 1\n}"
+            }
+          ]
+        },
+        {
+          "name": "Mark Flashcard as Needs Practice",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/flashcards/1/practice/", "host": ["{{base_url}}"], "path": ["flashcards", "1", "practice", ""] }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"id\": 1,\n  \"question\": \"What is the past tense of 'go'?\",\n  \"answer\": \"went\",\n  \"category\": \"Irregular Verbs\",\n  \"difficulty\": \"easy\",\n  \"isMastered\": false,\n  \"timesReviewed\": 2\n}"
+            }
+          ]
+        },
+        {
+          "name": "Reset All Flashcard Progress",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/flashcards/reset/", "host": ["{{base_url}}"], "path": ["flashcards", "reset", ""] }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 1,\n    \"question\": \"What is the past tense of 'go'?\",\n    \"answer\": \"went\",\n    \"category\": \"Irregular Verbs\",\n    \"difficulty\": \"easy\",\n    \"isMastered\": false,\n    \"timesReviewed\": 0\n  }\n]"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
