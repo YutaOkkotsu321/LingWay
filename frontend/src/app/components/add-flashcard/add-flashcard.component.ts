@@ -124,9 +124,15 @@ import { Flashcard, NewFlashcard } from '../../core/models';
       padding: 28px;
     }
     .btn-danger {
+      background-color: rgba(38, 38, 120, 0.5);
       padding: 10px 20px;
-      color: purple;
+      color: white;
       font-size: 20px;
+      border-radius: 20px;
+    }
+
+    .btn-danger:hover {
+      background-color: rgba(38, 38, 120, 1);
     }
     .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
     .field label { font-size: 0.82rem; color: var(--text-secondary); font-weight: 600; }
@@ -138,12 +144,30 @@ import { Flashcard, NewFlashcard } from '../../core/models';
     .field input:focus, .field select:focus {
       outline: none; border-color: var(--accent-violet);
     }
-
+    .btn-primary {
+      padding: 10px 20px;
+      border-radius: 20px;
+       background-color: rgba(38, 38, 120, 0.5);
+       font-size: 20px;
+       color: white;
+    }
+    .btn-primary:hover {
+      background-color: rgba(38, 38, 120, 1);
+    }
     .row { display: grid; grid-template-columns: 1fr 180px; gap: 16px; }
     @media (max-width: 600px) { .row { grid-template-columns: 1fr; } }
 
     .actions { display: flex; gap: 10px; margin-top: 8px; }
-
+    .btn-outline {
+    padding: 10px 20px;
+      border-radius: 20px;
+       background-color: rgba(38, 38, 120, 0.5);
+       font-size: 20px;
+       color: white;
+    }
+    .btn-outline:hover {
+      background-color: rgba(38, 38, 120, 1);
+    }
     .error-banner {
       background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3);
       color: #f87171; padding: 10px 14px; border-radius: var(--radius);
