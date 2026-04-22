@@ -39,6 +39,11 @@ import { Flashcard } from '../../core/models';
           <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
           Reset
         </button>
+        <!-- Clear all cards -->
+        <button class="ctrl-btn danger" (click)="clearAll()" [disabled]="svc.isLoading() || svc.flashcards().length === 0">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M8 7V4a2 2 0 012-2h4a2 2 0 012 2v3"/></svg>
+          Clear
+        </button>
 
         @if (progress().mastered > 0) {
           <span class="streak-badge">
@@ -143,6 +148,14 @@ import { Flashcard } from '../../core/models';
           <p>Loading flashcards...</p>
         </div>
       }
+
+      @if (!svc.isLoading() && svc.flashcards().length === 0) {
+        <div class="empty-state">
+          <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          <p class="empty-title">No flashcards yet</p>
+          <p class="empty-sub">Head over to Add Cards to create your first flashcard.</p>
+        </div>
+      }
     </div>
   `,
   styles: [`
@@ -186,6 +199,21 @@ import { Flashcard } from '../../core/models';
       padding: 8px 18px; transition: all 0.2s;
       &:hover:not(:disabled) { border-color: var(--accent-violet); color: var(--text-primary); }
       &:disabled { opacity: 0.5; cursor: not-allowed; }
+    }
+    .ctrl-btn.danger {
+      &:hover:not(:disabled) {
+        border-color: #f87171;
+        color: #f87171;
+        background: rgba(248,113,113,0.08);
+      }
+    }
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      padding: 80px 20px;
+      color: var(--text-secondary);
+      svg { opacity: 0.4; }
+      .empty-title { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
+      .empty-sub { font-size: 0.9rem; }
     }
     .streak-badge {
       margin-left: 8px;
@@ -386,6 +414,15 @@ export class FlashcardsComponent implements OnInit {
   // Reset → API request
   reset(): void {
     this.svc.resetFlashcards().subscribe(() => {
+      this.currentIndex = 0;
+      this.isFlipped = false;
+    });
+  }
+
+  // Delete all flashcards
+  clearAll(): void {
+    if (!confirm('Delete all flashcards? This cannot be undone.')) return;
+    this.svc.clearAllFlashcards().subscribe(() => {
       this.currentIndex = 0;
       this.isFlipped = false;
     });

@@ -105,18 +105,52 @@ const MOCK_FLASHCARDS: Flashcard[] = [
 @Injectable({ providedIn: 'root' })
 export class LearningService {
   private readonly API = 'http://localhost:8000/api';
+  private readonly USER_CARDS_KEY = 'lingway_user_flashcards';
+  private readonly CLEARED_KEY = 'lingway_flashcards_cleared';
 
   isLoading   = signal(false);
   apiError    = signal<string | null>(null);
 
   // Local mutable state
-  private _flashcards = signal<Flashcard[]>([...MOCK_FLASHCARDS]);
+  private _flashcards = signal<Flashcard[]>(
+    this.isCleared() ? [...this.loadUserCards()] : [...MOCK_FLASHCARDS, ...this.loadUserCards()]
+  );
   flashcards = this._flashcards.asReadonly();
 
   private _vocabulary = signal<VocabularyWord[]>([]);
   vocabulary = this._vocabulary.asReadonly();
 
   constructor(private http: HttpClient) {}
+
+  private loadUserCards(): Flashcard[] {
+    try {
+      const raw = localStorage.getItem(this.USER_CARDS_KEY);
+      return raw ? JSON.parse(raw) as Flashcard[] : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private saveUserCards(cards: Flashcard[]): void {
+    try {
+      localStorage.setItem(this.USER_CARDS_KEY, JSON.stringify(cards));
+    } catch {}
+  }
+
+  private isCleared(): boolean {
+    try {
+      return localStorage.getItem(this.CLEARED_KEY) === '1';
+    } catch {
+      return false;
+    }
+  }
+
+  private setCleared(cleared: boolean): void {
+    try {
+      if (cleared) localStorage.setItem(this.CLEARED_KEY, '1');
+      else localStorage.removeItem(this.CLEARED_KEY);
+    } catch {}
+  }
 
   // ── GRAMMAR TOPICS ────────────────────────────────────────────────────
   getGrammarTopics(): Observable<GrammarTopic[]> {
@@ -215,13 +249,45 @@ export class LearningService {
 
     return this.http.get<Flashcard[]>(`${this.API}/flashcards/`).pipe(
       tap((cards) => {
-        this._flashcards.set(cards);
+        const base = this.isCleared() ? [] : cards;
+        const merged = [...base, ...this.loadUserCards()];
+        this._flashcards.set(merged);
         this.isLoading.set(false);
       }),
       catchError(() => {
         this.isLoading.set(false);
-        this._flashcards.set([...MOCK_FLASHCARDS]);
-        return of([...MOCK_FLASHCARDS]);
+        const base = this.isCleared() ? [] : [...MOCK_FLASHCARDS];
+        const merged = [...base, ...this.loadUserCards()];
+        this._flashcards.set(merged);
+        return of(merged);
+      })
+    );
+  }
+
+  addFlashcard(data: { question: string; answer: string; category: string; difficulty: 'easy' | 'medium' | 'hard'; }): Observable<Flashcard> {
+    const existing = this._flashcards();
+    const nextId = existing.length > 0 ? Math.max(...existing.map(c => c.id)) + 1 : 1;
+    const newCard: Flashcard = {
+      id: nextId,
+      question: data.question.trim(),
+      answer: data.answer.trim(),
+      category: data.category.trim() || 'General',
+      difficulty: data.difficulty,
+      isMastered: false,
+      timesReviewed: 0,
+    };
+
+    return this.http.post<Flashcard>(`${this.API}/flashcards/`, newCard).pipe(
+      tap((created) => {
+        this._flashcards.update(cards => [...cards, created]);
+        const userCards = this.loadUserCards();
+        this.saveUserCards([...userCards, created]);
+      }),
+      catchError(() => {
+        this._flashcards.update(cards => [...cards, newCard]);
+        const userCards = this.loadUserCards();
+        this.saveUserCards([...userCards, newCard]);
+        return of(newCard);
       })
     );
   }
@@ -267,13 +333,27 @@ export class LearningService {
     );
   }
 
+  clearAllFlashcards(): Observable<Flashcard[]> {
+    this.saveUserCards([]);
+    this.setCleared(true);
+    this._flashcards.set([]);
+    return of([]);
+  }
+
   resetFlashcards(): Observable<Flashcard[]> {
+    this.setCleared(false);
     return this.http.post<Flashcard[]>(`${this.API}/flashcards/reset/`, {}).pipe(
-      tap((cards) => this._flashcards.set(cards)),
+      tap((cards) => {
+        const merged = [...cards, ...this.loadUserCards()];
+        this._flashcards.set(merged);
+      }),
       catchError(() => {
-        const reset = this._flashcards().map(c => ({ ...c, isMastered: false, timesReviewed: 0 }));
-        this._flashcards.set(reset);
-        return of(reset);
+        const merged = [
+          ...MOCK_FLASHCARDS.map(c => ({ ...c, isMastered: false, timesReviewed: 0 })),
+          ...this.loadUserCards().map(c => ({ ...c, isMastered: false, timesReviewed: 0 })),
+        ];
+        this._flashcards.set(merged);
+        return of(merged);
       })
     );
   }

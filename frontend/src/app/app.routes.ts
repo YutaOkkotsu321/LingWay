@@ -13,6 +13,7 @@ export const routes: Routes = [
   { path: 'grammar/:id',    canActivate: [authGuard], loadComponent: () => import('./components/grammar-detail/grammar-detail.component').then(m => m.GrammarDetailComponent) },
   { path: 'vocabulary',     canActivate: [authGuard], loadComponent: () => import('./components/vocabulary/vocabulary.component').then(m => m.VocabularyComponent) },
   { path: 'flashcards',     canActivate: [authGuard], loadComponent: () => import('./components/flashcards/flashcards.component').then(m => m.FlashcardsComponent) },
+  { path: 'add-cards',      canActivate: [authGuard], loadComponent: () => import('./components/add-cards/add-cards.component').then(m => m.AddCardsComponent) },
   { path: 'profile',        canActivate: [authGuard], loadComponent: () => import('./components/profile/profile.component').then(m => m.ProfileComponent) },
 
   { path: '**', redirectTo: '/grammar' },
